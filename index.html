@@ -163,7 +163,7 @@
     .nav__links span { color: var(--color-border); }
 
     .nav__right {
-      display: flex; align-items: center; gap: 1.5rem;
+      display: flex; align-items: center; gap: 0.75rem;
     }
     .nav__cta {
       font-size: var(--text-sm); font-weight: var(--weight-medium);
@@ -181,9 +181,94 @@
       border-color: transparent;
     }
 
+    /* Hamburger Button */
+    .nav__hamburger {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 44px; height: 44px;
+      background: none; border: none;
+      cursor: pointer;
+      position: relative;
+      z-index: 1001;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .nav__hamburger-icon {
+      width: 20px; height: 14px;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .nav__hamburger-icon span {
+      display: block;
+      width: 100%; height: 2px;
+      background: var(--color-text);
+      border-radius: 1px;
+      transition: all var(--duration-fast) var(--ease);
+      transform-origin: center;
+    }
+    .nav.is-menu-open .nav__hamburger-icon span:nth-child(1) {
+      transform: translateY(6px) rotate(45deg);
+    }
+    .nav.is-menu-open .nav__hamburger-icon span:nth-child(2) {
+      opacity: 0;
+    }
+    .nav.is-menu-open .nav__hamburger-icon span:nth-child(3) {
+      transform: translateY(-6px) rotate(-45deg);
+    }
+
+    /* Mobile Menu Overlay */
+    .nav__mobile-menu {
+      position: fixed;
+      inset: 0;
+      z-index: 999;
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity var(--duration-base) var(--ease);
+    }
+    .nav.is-menu-open .nav__mobile-menu {
+      opacity: 1;
+      pointer-events: auto;
+    }
+    .nav__mobile-menu a {
+      font-size: var(--text-2xl);
+      font-weight: var(--weight-semibold);
+      color: var(--color-text);
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--radius-md);
+      transition: color var(--duration-fast);
+      letter-spacing: -0.02em;
+    }
+    .nav__mobile-menu a:hover {
+      color: var(--color-brand);
+    }
+    .nav__mobile-menu .nav__mobile-cta {
+      margin-top: 1.5rem;
+      font-size: var(--text-base);
+      font-weight: var(--weight-semibold);
+      color: #fff;
+      background: var(--color-brand);
+      padding: 0.875rem 2rem;
+      border-radius: var(--radius-full);
+      min-height: 48px;
+      display: inline-flex;
+      align-items: center;
+    }
+
     @media (min-width: 768px) {
       .nav__center { display: flex; }
       .nav__cta { padding: 0.625rem 1.5rem; }
+      .nav__hamburger { display: none; }
+      .nav__mobile-menu { display: none; }
       .btn { padding: 1.125rem 2.5rem; min-height: 56px; gap: 0.625rem; }
       .btn--ghost { padding: 1.0625rem 2.5rem; }
     }
@@ -1239,6 +1324,18 @@
       <div class="nav__right">
         <a href="https://6t1nuj82l3l.typeform.com/to/seiSztxZ"
            class="nav__cta" target="_blank" rel="noopener noreferrer">상담 신청</a>
+        <button class="nav__hamburger" id="nav-hamburger" aria-label="메뉴 열기" aria-expanded="false" type="button">
+          <div class="nav__hamburger-icon">
+            <span></span><span></span><span></span>
+          </div>
+        </button>
+      </div>
+      <div class="nav__mobile-menu" id="nav-mobile-menu">
+        <a href="#method">수업 방식</a>
+        <a href="#gallery">교재</a>
+        <a href="#proof">후기</a>
+        <a href="https://6t1nuj82l3l.typeform.com/to/seiSztxZ"
+           class="nav__mobile-cta" target="_blank" rel="noopener noreferrer">상담 신청</a>
       </div>
     </div>
   </nav>
@@ -1518,6 +1615,27 @@
       const check = () => nav.classList.toggle('is-scrolled', window.scrollY > 80);
       window.addEventListener('scroll', check, { passive: true });
       check();
+
+      // Hamburger menu
+      const hamburger = document.getElementById('nav-hamburger');
+      const mobileMenu = document.getElementById('nav-mobile-menu');
+      if (!hamburger || !mobileMenu) return;
+
+      hamburger.addEventListener('click', () => {
+        const isOpen = nav.classList.toggle('is-menu-open');
+        hamburger.setAttribute('aria-expanded', isOpen);
+        hamburger.setAttribute('aria-label', isOpen ? '메뉴 닫기' : '메뉴 열기');
+        document.body.style.overflow = isOpen ? 'hidden' : '';
+      });
+
+      mobileMenu.querySelectorAll('a[href^="#"]').forEach(link => {
+        link.addEventListener('click', () => {
+          nav.classList.remove('is-menu-open');
+          hamburger.setAttribute('aria-expanded', 'false');
+          hamburger.setAttribute('aria-label', '메뉴 열기');
+          document.body.style.overflow = '';
+        });
+      });
     }
 
     // Number Counter
